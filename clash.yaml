@@ -1,0 +1,119 @@
+#---------------------------------------------------#
+# https://github.com/Dreamacro/clash/wiki/configuration#syntax
+# https://v2xtls.org/clash_template2.yaml
+#---------------------------------------------------#
+
+# (HTTP and SOCKS5 in one port)
+mixed-port: 7890
+# RESTful API for clash
+external-controller: 127.0.0.1:9090
+allow-lan: false
+mode: rule
+log-level: warning
+dns:
+  enable: true
+  listen: 127.0.0.1:53
+  default-nameserver:
+    - 156.154.70.1
+    - 1.0.0.1
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.10.0.1/16
+  fake-ip-filter:
+    - "*.lan"
+    - stun.*.*.*
+    - stun.*.*
+    - time.windows.com
+    - time.nist.gov
+    - time.apple.com
+    - time.asia.apple.com
+  nameserver:
+    - https://223.6.6.6/dns-query
+    - https://rubyfish.cn/dns-query
+    - https://dns.pub/dns-query
+
+# 实验性功能
+experimental:
+  ignore-resolve-fail: true # 忽略 DNS 解析失败，默认值为true
+  # interface-name: en0 # 出站接口名称
+
+proxies:
+# demo: https://v2xtls.org/clash_template2.yaml
+
+# VMess
+# - name: "JMS-IPLC"
+#   type: vmess
+#   server: c901sct.jamjams.net
+#   port: 23380
+#   uuid: 63862158-425c-474b-8a78-76ab03f2def8
+#   alterId: 8
+#   cipher: auto
+#   # udp: true
+#   # tls: true
+#   # skip-cert-verify: true
+#   # network: ws
+#   # ws-path: /path
+#   # ws-headers: #这一行后面不要写东西
+#   #   Host: v2ray.com # 填你的主机名
+
+- name: "V2-中转2999|上海CN2-日本|解锁|x1.5|V2ray"
+  type: vmess
+  server: uc-1.bj.ddns-only.xyz
+  port: 12999
+  uuid: 234f8aa0-d6d0-34fd-b355-766bd4594491
+  alterId: 0
+  cipher: auto
+  udp: true
+  network: ws
+  ws-path: /v2ray
+  ws-headers:
+    Host: uc-1.bj.ddns-only.xyz
+- name: "2959|广东-日本|解锁|x1.5|V2ray"
+  type: vmess
+  server: guangdong04.vq1021.site
+  port: 12959
+  uuid: aac29ca0-6ca1-3140-a155-4890bb362e1f
+  alterId: 0
+  cipher: auto
+  tls: false
+  network: ws
+  ws-path: /v2ray
+  ws-headers:
+    Host: guangdong04.vq1021.site
+
+- {name: 2, server: 104.18.7.138, port: 443, type: vmess, uuid: 3b5e258e-8c5e-45d3-b7d2-02c8f5fc0bb2, alterId: 64, cipher: auto, tls: true, network: ws, ws-path: /, ws-headers: {Host: cdnde.irteyz.today}}
+
+- {"name":"V1-#120|IPLC-深圳-香港|x4.0|SSR","type":"ssr","server":"yy-jz-iplc-02.ddns-only.xyz","port":40120,"cipher":"chacha20-ietf","password":"jL76UJd","protocol":"auth_aes128_sha1","protocolparam":"78:SO14jk","obfs":"tls1.2_ticket_auth","obfsparam":"266a078.microsoft.com"}
+- {"name":"V1-#133|IPLC-深圳-台湾|NF|x4.0|V2ray","type":"vmess","server":"yy-jz-iplc-02.ddns-only.xyz","port":40133,"uuid":"8916b7be-5a88-32ad-aa03-7c30a50db130","alterId":1,"cipher":"auto","udp":true,"network":"ws","ws-path":"/jz666666","ws-headers":{"Host":"yy-jz-iplc-02.ddns-only.xyz"}}
+
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies:
+       [
+        #  "JMS-IPLC",
+        2,
+        "V1-#120|IPLC-深圳-香港|x4.0|SSR",
+        "V1-#133|IPLC-深圳-台湾|NF|x4.0|V2ray",
+       ]
+  - name: YouTube
+    type: select
+    proxies:
+      ["Proxy"]
+
+rules:
+  - DOMAIN-SUFFIX,google.com,DIRECT
+  - DOMAIN-KEYWORD,google,DIRECT
+  - DOMAIN,google.com,DIRECT
+  - DOMAIN-SUFFIX,ad.com,REJECT
+  - DOMAIN-KEYWORD,youtube,YouTube
+  - DOMAIN-SUFFIX,youtu.be,YouTube
+  - DOMAIN-SUFFIX,googlevideo.com,YouTube
+  - DOMAIN-SUFFIX,ytimg.com,YouTube
+  - DOMAIN-SUFFIX,ggpht.com,YouTube
+  - DOMAIN-SUFFIX,gvt2.com,YouTube
+  - DOMAIN-SUFFIX,app-measurement.com,YouTube
+  - DOMAIN,fonts.gstatic.com,YouTube
+  - DOMAIN-SUFFIX,google.com,YouTube
+  - GEOIP,CN,DIRECT
+  - MATCH,DIRECT
